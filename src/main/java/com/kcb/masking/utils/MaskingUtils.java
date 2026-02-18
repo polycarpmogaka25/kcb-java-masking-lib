@@ -1,56 +1,64 @@
-package com.kcb.masking.utils;
-
+package com.kcb.masking.utils; // Suggest putting in .utils or .support
 
 import com.kcb.masking.config.MaskingProperties;
 
+public class MaskingUtils {
 
-public final class MaskingUtils {
 
-    private MaskingUtils() {
-        // Utility class should not be instantiated
-    }
+    public String mask(String value, MaskingProperties.MaskStyle style, String maskCharacter) {
 
-    public static String applyMask(String value, MaskingProperties.MaskStyle style, String maskChar) {
-        if (value == null || value.isEmpty()) {
-            return value;
-        }
+        if (value == null) return null;
+        if (value.isEmpty()) return value;
 
-        var effectiveMaskChar = (maskChar == null || maskChar.isEmpty())
-                ? "*"
-                : maskChar.substring(0, 1);
+        String maskChar = resolveMaskCharacter(maskCharacter);
 
         return switch (style) {
-            case FULL -> effectiveMaskChar.repeat(value.length());
-            case LAST4 -> {
-                if (value.length() <= 4) yield value;
-                yield effectiveMaskChar.repeat(value.length() - 4) + value.substring(value.length() - 4);
-            }
-            case PARTIAL -> maskPartial(value, effectiveMaskChar);
+            case FULL -> maskChar.repeat(value.length());
+            case PARTIAL -> partialMask(value, maskChar);
+            case LAST4 -> last4Mask(value, maskChar);
         };
     }
 
-    private static String maskPartial(String value, String maskChar) {
-        if (value.contains("@")) {
-            return maskEmail(value, maskChar);
-        }
-
-        if (value.length() <= 2) {
-            return value;
-        }
-        return value.substring(0, 2) + maskChar.repeat(value.length() - 2);
+    private String fullMask(String value, String maskChar) {
+        return maskChar.repeat(value.length());
     }
 
-    private static String maskEmail(String email, String maskChar) {
+    private String partialMask(String value, String maskChar) {
+
+        // Special handling for email
+        if (value.contains("@")) return maskEmail(value, maskChar);
+
+        if (value.length() <= 2) return fullMask(value, maskChar);
+
+        String visible = value.substring(0, 2);
+        String masked = maskChar.repeat(value.length() - 2);
+        return visible + masked;
+    }
+
+    private String last4Mask(String value, String maskChar) {
+
+        if (value.length() <= 4) return fullMask(value, maskChar);
+
+        int maskedLength = value.length() - 4;
+        String masked = maskChar.repeat(maskedLength);
+        String visible = value.substring(value.length() - 4);
+        return masked + visible;
+    }
+
+    private String maskEmail(String email, String maskChar) {
+
         int atIndex = email.indexOf("@");
-        if (atIndex <= 2) {
-            return email;
-        }
+        if (atIndex <= 2) return fullMask(email, maskChar);
 
-        var prefix = email.substring(0, atIndex);
-        var domain = email.substring(atIndex);
+        String visiblePrefix = email.substring(0, 2);
+        String domain = email.substring(atIndex);
+        String masked = maskChar.repeat(atIndex - 2);
 
-        var maskedPrefix = prefix.substring(0, 2) + maskChar.repeat(prefix.length() - 2);
+        return visiblePrefix + masked + domain;
+    }
 
-        return maskedPrefix + domain;
+    private String resolveMaskCharacter(String maskCharacter) {
+        if (maskCharacter == null || maskCharacter.isBlank()) return "*";
+        return maskCharacter.substring(0, 1);
     }
 }

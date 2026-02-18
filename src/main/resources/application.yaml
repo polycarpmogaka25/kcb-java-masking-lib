@@ -1,6 +1,6 @@
 spring:
   application:
-    name: masking
+    name: p11-masking-spring-boot-starter
 p11:
   masking:
     enabled: true
