@@ -1,5 +1,6 @@
 package com.kcb.masking;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,7 +16,6 @@ class MaskingApplicationTests {
 	void main_shouldInvokeSpringApplicationRun() {
 		try (var mockedSpringApp = mockStatic(SpringApplication.class)) {
 			MaskingApplication.main(new String[]{"arg1", "arg2"});
-
 			mockedSpringApp.verify(() -> SpringApplication.run(MaskingApplication.class, new String[]{"arg1", "arg2"}), times(1));
 		}
 	}
@@ -28,7 +28,6 @@ class MaskingApplicationTests {
 				"--spring.main.banner-mode=off",
 				"--amqp.force-async-send=false"
 		};
-
 		assertDoesNotThrow(() -> MaskingApplication.main(args));
 	}
 
@@ -36,6 +35,6 @@ class MaskingApplicationTests {
 	@Test
 	void applicationContextTest() {
 		var app = new MaskingApplication();
-		org.junit.jupiter.api.Assertions.assertNotNull(app);
+		Assertions.assertNotNull(app);
 	}
 }
