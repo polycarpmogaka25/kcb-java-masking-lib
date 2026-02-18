@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: masking
+p11:
+  masking:
+    enabled: true
+    fields:
+      - email
+      - phoneNumber
+      - ssn
+      - creditCardNumber
+    mask-style: PARTIAL
+    mask-character: "*"
