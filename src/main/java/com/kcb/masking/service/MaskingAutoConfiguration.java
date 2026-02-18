@@ -5,17 +5,12 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.kcb.masking.config.MaskingProperties;
 import com.kcb.masking.utils.MaskingSerializer;
 import com.kcb.masking.utils.MaskingUtils;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
-@Configuration
-@ConditionalOnProperty(
-        prefix = "p11.masking",
-        name = "enabled",
-        havingValue = "true",
-        matchIfMissing = true
-)
+@AutoConfiguration
+@ConditionalOnProperty(prefix = "p11.masking", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class MaskingAutoConfiguration {
 
     @Bean
@@ -24,11 +19,16 @@ public class MaskingAutoConfiguration {
     }
 
     @Bean
-    public ObjectMapper objectMapper(MaskingProperties properties, MaskingUtils engine) {
-        var mapper = new ObjectMapper();
+    public SimpleModule maskingModule(MaskingProperties properties, MaskingUtils engine) {
         var module = new SimpleModule();
         module.addSerializer(Object.class, new MaskingSerializer(properties, engine));
-        mapper.registerModule(module);
-        return mapper;
+        return module;
     }
+
+    @Bean
+    public ObjectMapper objectMapper(SimpleModule maskingModule, ObjectMapper defaultMapper) {
+        defaultMapper.registerModule(maskingModule);
+        return defaultMapper;
+    }
+
 }

@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class MaskingApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(MaskingApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(MaskingApplication.class, args);
+    }
 
 }

@@ -4,16 +4,14 @@ import com.kcb.masking.config.MaskingProperties;
 
 public class MaskingUtils {
 
-
     public String mask(String value, MaskingProperties.MaskStyle style, String maskCharacter) {
-
         if (value == null) return null;
         if (value.isEmpty()) return value;
 
         String maskChar = resolveMaskCharacter(maskCharacter);
 
         return switch (style) {
-            case FULL -> maskChar.repeat(value.length());
+            case FULL -> fullMask(value, maskChar);
             case PARTIAL -> partialMask(value, maskChar);
             case LAST4 -> last4Mask(value, maskChar);
         };
@@ -24,10 +22,7 @@ public class MaskingUtils {
     }
 
     private String partialMask(String value, String maskChar) {
-
-        // Special handling for email
         if (value.contains("@")) return maskEmail(value, maskChar);
-
         if (value.length() <= 2) return fullMask(value, maskChar);
 
         String visible = value.substring(0, 2);
@@ -36,7 +31,6 @@ public class MaskingUtils {
     }
 
     private String last4Mask(String value, String maskChar) {
-
         if (value.length() <= 4) return fullMask(value, maskChar);
 
         int maskedLength = value.length() - 4;
@@ -46,13 +40,12 @@ public class MaskingUtils {
     }
 
     private String maskEmail(String email, String maskChar) {
-
         int atIndex = email.indexOf("@");
         if (atIndex <= 2) return fullMask(email, maskChar);
 
         String visiblePrefix = email.substring(0, 2);
-        String domain = email.substring(atIndex);
         String masked = maskChar.repeat(atIndex - 2);
+        String domain = email.substring(atIndex);
 
         return visiblePrefix + masked + domain;
     }
@@ -62,3 +55,4 @@ public class MaskingUtils {
         return maskCharacter.substring(0, 1);
     }
 }
+
